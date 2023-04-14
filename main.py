@@ -15,7 +15,6 @@ MQTT_PORT = 1883
 
 # Set the MQTT topic to publish to
 MQTT_TOPIC = "my_topic"
-
 # Load the known face image and encoding
 known_image = face_recognition.load_image_file("/home/lqptoptvt/Desktop/images/boy.jpg")
 known_encoding = face_recognition.face_encodings(known_image)[0]
@@ -32,8 +31,8 @@ detector = dlib.get_frontal_face_detector()
 # Define a function to publish the name to MQTT topic every 10 seconds
 # Create a global variable to store the thread object
 name_thread = None
-
 def publish_name():
+    id = 0
     while True:
         try:
             publish.single(MQTT_TOPIC, payload=my_name, hostname=MQTT_SERVER, port=MQTT_PORT, qos=1)
@@ -48,19 +47,15 @@ def publish_name():
             time.sleep(10)
             continue
         else:
+            id += 1
             print(f"User OK !: {my_name}")
+               # Save name and time to file
+
+            with open("log.txt", "a") as f:
+    
+                   f.write(f"{id} {my_name} was recognized at {datetime.now()}\n")
             # Wait for 10 seconds before publishing the next message
             time.sleep(10)
-
-
-# Check if the thread is already running before starting it
-if name_thread is None or not name_thread.is_alive():
-    name_thread = threading.Thread(target=publish_name)
-    name_thread.start()
-    print("Thread started.")
-else:
-    print("Thread is already running.")
-
 # Define the route for the video feed
 @app.route('/video_feed')
 def video_feed():
@@ -96,10 +91,6 @@ def video_feed():
 
                         # Display name if recognized
                         cv2.putText(frame, my_name, (left, top-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
-
-                        # Save name and time to file
-                        with open("log.txt", "a") as f:
-                            f.write(f"{my_name} was recognized at {datetime.now()}\n")
                     else:
                         # Draw red box around detected face
                         top, right, bottom, left = fc_locations[0]
@@ -126,4 +117,11 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+  if name_thread is None or not name_thread.is_alive():
+      name_thread = threading.Thread(target=publish_name)
+      name_thread.start()
+      print("Thread started.")
+  else:
+   print("Thread is already running.")
+if __name__ == '__main__':
+  app.run(debug=False)
