@@ -13,10 +13,8 @@ from paho.mqtt import publish
 # Set the path to the folder containing the images to train on
 TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/Desktop/images"
 
-# mosquitto_sub -d -t my_topic
 # Set the MQTT broker address and port
-# MQTT_SERVER = "192.168.9.218"
-MQTT_SERVER = "localhost"
+MQTT_SERVER = "192.168.9.218"
 MQTT_PORT = 1883
 
 # Set the MQTT topic to publish to
@@ -38,12 +36,12 @@ app = Flask(__name__)
 # Create a face detector using dlib
 detector = dlib.get_frontal_face_detector()
 
-# Define a function to publish the name to MQTT topic every 10 seconds
-def publish_name():
-    id = 0
+# Define a function to publish the name to MQTT topic if there is a match with a known face encoding
+def publish_name(name):
+
     while True:
         try:
-            publish.single(MQTT_TOPIC, payload=my_name, hostname=MQTT_SERVER, port=MQTT_PORT, qos=1)
+            publish.single(MQTT_TOPIC, payload=name, hostname=MQTT_SERVER, port=MQTT_PORT, qos=1)
         except ConnectionError as ce:
             print(f"Connection error while publishing message: {ce}")
             # Wait for 5 seconds before retrying
@@ -55,13 +53,12 @@ def publish_name():
             time.sleep(10)
             continue
         else:
-            id += 1
-            print(f"User OK !: {my_name}")
+
+            print(f"User OK !: {name}")
             # Save name and time to file
             with open("log.txt", "a") as f:
-                f.write(f"{id} : {my_name} đã được nhận dạng tại thời điểm : {datetime.now()}\n")
-            # Wait for 10 seconds before publishing the next message
-            time.sleep(20)
+                f.write(f"{name} was recognized at {datetime.now()}\n")
+            break
 
 # Define the route for the video feed
 @app.route('/video_feed')
@@ -70,7 +67,9 @@ def video_feed():
     cap = cv2.VideoCapture(0)
 
     def generate_frames():
+        last_publish_time = time.time()
         while True:
+
             # Capture frame-by-frame
             ret, frame = cap.read()
 
@@ -90,14 +89,22 @@ def video_feed():
                 # Compare with known face encodings
                 for fc_encoding in fc_encodings:
                     matches = face_recognition.compare_faces(known_encodings, fc_encoding)
-
+                    current_time = time.time()
+                    elapsed_time = current_time - last_publish_time
                     if True in matches:
                         # Draw green box around detected face
                         top, right, bottom, left = fc_locations[matches.index(True)]
                         cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
 
                         # Display name if recognized
-                        cv2.putText(frame, my_name, (left, top-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+                        name = "Phung Cong Nguyen" # Replace with your own name
+                        cv2.putText(frame, name, (left, top-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+
+                        # Publish name to MQTT topic if there is a match with a known face encoding
+                        if elapsed_time >= 15:
+                            publish_thread = threading.Thread(target=publish_name, args=(name,))
+                            publish_thread.start()
+                            last_publish_time = current_time
                     else:
                         # Draw red box around detected face
                         top, right, bottom, left = fc_locations[0]
@@ -123,19 +130,5 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    # Set your name
-    my_name = "Phung Cong Nguyen"
-
-    # Create a global variable to store the thread object
-    name_thread = None
-
-    # Start the thread to publish the name to MQTT topic every 10 seconds
-    if name_thread is None or not name_thread.is_alive():
-        name_thread = threading.Thread(target=publish_name)
-        name_thread.start()
-        print("Thread started.")
-    else:
-        print("Thread is already running.")
-
     # Start the Flask application
     app.run(debug=False)
