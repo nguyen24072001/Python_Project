@@ -1,10 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Video Stream</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
 <body>
-    <h1>Video Stream</h1>
-    <img id="stream" src="{{ url_for('video_feed') }}" width="640" height="480" />
+
+    <form>
+        <h1 id = "h1">enter password here
+
+            <input type = "password" id="input">
+        </h1>
+    </form>
+    <div id = "button">
+
+        <button onclick = submit() >submit</button>
+    </div>
+    <div id = "pass"></div>
+
+    <script>
+        const submit = () => {
+            const h1 = document.querySelector('#h1')
+            const button = document.querySelector('#button')
+
+        const matkhau = document.querySelector('#input')
+        const value = matkhau.value
+        const defautPassword = "ptit"
+            if (value === defautPassword){
+                h1.innerHTML = ''
+                button.innerHTML = ''
+           document.querySelector('#pass').innerHTML ='<img id="stream" src="{{ url_for('video_feed') }}" width="640" height="480" />';
+            }else{
+            document.querySelector('#pass').innerHTML ='Nhap lai pass !';
+        }
+        }
+    </script>
 </body>
 </html>

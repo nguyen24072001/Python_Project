@@ -1,11 +1,17 @@
+import threading
+import time
+from datetime import datetime
+
 import cv2
 import face_recognition
 import dlib
-import paho.mqtt.publish as publish
-from flask import Flask, render_template, Response
-from datetime import datetime
-import time
-import threading
+import os
+
+from flask import Response, Flask, render_template
+from paho.mqtt import publish
+
+# Set the path to the folder containing the images to train on
+TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/Desktop/images"
 
 # mosquitto_sub -d -t my_topic
 # Set the MQTT broker address and port
@@ -15,22 +21,24 @@ MQTT_PORT = 1883
 
 # Set the MQTT topic to publish to
 MQTT_TOPIC = "my_topic"
-# Load the known face image and encoding
-known_image = face_recognition.load_image_file("/home/lqptoptvt/Desktop/images/boy.jpg")
-known_encoding = face_recognition.face_encodings(known_image)[0]
 
-# Set your name
-my_name = "Phung Cong Nguyen"
+# Create a list to store the known face encodings
+known_encodings = []
 
-# Create the Flask application
+# Loop over the images in the training folder and generate encodings for each face
+for filename in os.listdir(TRAINING_IMAGES_FOLDER):
+    image_path = os.path.join(TRAINING_IMAGES_FOLDER, filename)
+    image = face_recognition.load_image_file(image_path)
+    encoding = face_recognition.face_encodings(image)[0]
+    known_encodings.append(encoding)
+
+# Create a Flask application
 app = Flask(__name__)
 
 # Create a face detector using dlib
 detector = dlib.get_frontal_face_detector()
 
 # Define a function to publish the name to MQTT topic every 10 seconds
-# Create a global variable to store the thread object
-name_thread = None
 def publish_name():
     id = 0
     while True:
@@ -49,13 +57,12 @@ def publish_name():
         else:
             id += 1
             print(f"User OK !: {my_name}")
-               # Save name and time to file
-
+            # Save name and time to file
             with open("log.txt", "a") as f:
-    
-                   f.write(f"{id} {my_name} was recognized at {datetime.now()}\n")
+                f.write(f"{id} : {my_name} đã được nhận dạng tại thời điểm : {datetime.now()}\n")
             # Wait for 10 seconds before publishing the next message
-            time.sleep(10)
+            time.sleep(20)
+
 # Define the route for the video feed
 @app.route('/video_feed')
 def video_feed():
@@ -80,9 +87,9 @@ def video_feed():
                 # Find face encodings
                 fc_encodings = face_recognition.face_encodings(rgb_frame, fc_locations)
 
-                # Compare with known face encoding
+                # Compare with known face encodings
                 for fc_encoding in fc_encodings:
-                    matches = face_recognition.compare_faces([known_encoding], fc_encoding)
+                    matches = face_recognition.compare_faces(known_encodings, fc_encoding)
 
                     if True in matches:
                         # Draw green box around detected face
@@ -107,7 +114,6 @@ def video_feed():
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-
     # Return the response with MIME type of multipart/x-mixed-replace
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
@@ -117,11 +123,19 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
-  if name_thread is None or not name_thread.is_alive():
-      name_thread = threading.Thread(target=publish_name)
-      name_thread.start()
-      print("Thread started.")
-  else:
-   print("Thread is already running.")
-if __name__ == '__main__':
-  app.run(debug=False)
+    # Set your name
+    my_name = "Phung Cong Nguyen"
+
+    # Create a global variable to store the thread object
+    name_thread = None
+
+    # Start the thread to publish the name to MQTT topic every 10 seconds
+    if name_thread is None or not name_thread.is_alive():
+        name_thread = threading.Thread(target=publish_name)
+        name_thread.start()
+        print("Thread started.")
+    else:
+        print("Thread is already running.")
+
+    # Start the Flask application
+    app.run(debug=False)
