@@ -12,11 +12,13 @@ from paho.mqtt import publish
 
 # Set the path to the folder containing the images to train on
 TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/Desktop/images"
+SECOND_PERSON_TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/Desktop/images1"
 
 # Set the MQTT broker address and port
-MQTT_SERVER = "192.168.9.218"
+# MQTT_SERVER = "192.168.9.218"
+MQTT_SERVER = "localhost"
 MQTT_PORT = 1883
-
+message_id = 0
 # Set the MQTT topic to publish to
 MQTT_TOPIC = "my_topic"
 
@@ -29,17 +31,25 @@ for filename in os.listdir(TRAINING_IMAGES_FOLDER):
     image = face_recognition.load_image_file(image_path)
     encoding = face_recognition.face_encodings(image)[0]
     known_encodings.append(encoding)
-
+# Add the encodings for the second person
+for filename in os.listdir(SECOND_PERSON_TRAINING_IMAGES_FOLDER):
+    image_path = os.path.join(SECOND_PERSON_TRAINING_IMAGES_FOLDER, filename)
+    image = face_recognition.load_image_file(image_path)
+    encoding = face_recognition.face_encodings(image)[0]
+    known_encodings.append(encoding)
 # Create a Flask application
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
 # Create a face detector using dlib
 detector = dlib.get_frontal_face_detector()
 
 # Define a function to publish the name to MQTT topic if there is a match with a known face encoding
 def publish_name(name):
+    global message_id
+    message_id += 1
 
     while True:
+
         try:
             publish.single(MQTT_TOPIC, payload=name, hostname=MQTT_SERVER, port=MQTT_PORT, qos=1)
         except ConnectionError as ce:
@@ -57,7 +67,8 @@ def publish_name(name):
             print(f"User OK !: {name}")
             # Save name and time to file
             with open("log.txt", "a") as f:
-                f.write(f"{name} was recognized at {datetime.now()}\n")
+
+                f.write(f" ID: {message_id} | {name} ĐÃ ĐƯỢC NHẬN DIỆN VÀO LÚC | {datetime.now()}\n")
             break
 
 # Define the route for the video feed
@@ -68,6 +79,7 @@ def video_feed():
 
     def generate_frames():
         last_publish_time = time.time()
+
         while True:
 
             # Capture frame-by-frame
@@ -87,24 +99,31 @@ def video_feed():
                 fc_encodings = face_recognition.face_encodings(rgb_frame, fc_locations)
 
                 # Compare with known face encodings
-                for fc_encoding in fc_encodings:
+                for fc_location, fc_encoding in zip(fc_locations, fc_encodings):
                     matches = face_recognition.compare_faces(known_encodings, fc_encoding)
                     current_time = time.time()
                     elapsed_time = current_time - last_publish_time
                     if True in matches:
+                        # Get the index of the detected person
+                        i = matches.index(True)
+
                         # Draw green box around detected face
-                        top, right, bottom, left = fc_locations[matches.index(True)]
+                        top, right, bottom, left = fc_location
                         cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
 
                         # Display name if recognized
-                        name = "Phung Cong Nguyen" # Replace with your own name
-                        cv2.putText(frame, name, (left, top-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+                        if i == 0:
+                            name = "Phung Cong Nguyen"
+                        elif i == 1:
+                            name = "Second person name"
+                        cv2.putText(frame, name, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
 
-                        # Publish name to MQTT topic if there is a match with a known face encoding
+                        # Publish name to MQTT topic if elapsed time is greater than or equal to 15 seconds
                         if elapsed_time >= 15:
                             publish_thread = threading.Thread(target=publish_name, args=(name,))
                             publish_thread.start()
                             last_publish_time = current_time
+                            break
                     else:
                         # Draw red box around detected face
                         top, right, bottom, left = fc_locations[0]
@@ -128,6 +147,7 @@ def video_feed():
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 if __name__ == '__main__':
     # Start the Flask application

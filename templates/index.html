@@ -1,41 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEMO IOT</title>
-</head>
-<body>
+<html lang="en"> <head> <meta charset="UTF-8"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>DEMO IOT</title> </head> <body>
 
-    <form>
-        <h1 id = "h1">enter password here
+<form>
+    <h1 id="h1">enter password here
+        <input type="password" id="input">
+    </h1>
+</form>
+<div id="button">
+    <button onclick=submit()>submit</button>
+</div>
+<div id="pass"></div>
 
-            <input type = "password" id="input">
-        </h1>
-    </form>
-    <div id = "button">
+<div id="video-feed">
+</div>
 
-        <button onclick = submit() >submit</button>
-    </div>
-    <div id = "pass"></div>
+<div id="action-button">
+    <button onclick="performAction()">Perform Action</button>
+    <button onclick="openNewTab()">New Tab</button>
+</div>
 
-    <script>
-        const submit = () => {
-            const h1 = document.querySelector('#h1')
-            const button = document.querySelector('#button')
-
+<script>
+    const submit = () => {
+        const h1 = document.querySelector('#h1')
+        const button = document.querySelector('#button')
         const matkhau = document.querySelector('#input')
         const value = matkhau.value
         const defautPassword = "ptit"
-            if (value === defautPassword){
-                h1.innerHTML = ''
-                button.innerHTML = ''
-           document.querySelector('#pass').innerHTML ='<img id="stream" src="{{ url_for('video_feed') }}" width="640" height="480" />';
-            }else{
-            document.querySelector('#pass').innerHTML ='Nhap lai pass !';
+
+        if (value === defautPassword){
+            h1.innerHTML = ''
+            button.innerHTML = ''
+            document.querySelector('#pass').innerHTML = '<img id="stream" src="{{ url_for('video_feed') }}" width="640" height="480">'
+
+            // create new button
+            const videoFeed = document.querySelector('#video-feed')
+            const newButton = document.createElement('button')
+            newButton.textContent = 'New Button'
+            newButton.onclick = () => {
+                alert('You clicked the new button!')
+            }
+            videoFeed.appendChild(newButton)
+        } else {
+            alert('Incorrect password')
         }
-        }
-    </script>
-</body>
-</html>
+    }
+
+    const performAction = () => {
+        // code to perform action goes here
+        alert('Action performed!')
+    }
+</script>
+<script>
+function openNewTab() {
+  // Open a new tab with index2.html
+  window.open("static/index2.html");
+}
+</script>
+
+</body> </html>
