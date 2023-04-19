@@ -52,8 +52,12 @@
 </script>
 <script>
 function openNewTab() {
-  // Open a new tab with index2.html
-  window.open("static/index2.html");
+  // Reload the current tab
+  location.reload();
+  // Get the root URL (http://127.0.0.1:5000/)
+  var rootURL = window.location.protocol + "//" + window.location.host + "/";
+  // Return to http://127.0.0.1:5000/static/index2.html
+  window.location.href = rootURL + "static/index2.html";
 }
 </script>
 

@@ -23,6 +23,16 @@
 
     <div id="action-button">
       <button onclick="performAction()">Perform Action</button>
+      <button onclick="MainTab()">Main Tab</button>
+      <form method="POST" action="/">
+        <label for="name1">Name 1:</label>
+        <input type="text" id="name1" name="name1" value="{{ names[0] }}"><br>
+
+        <label for="name2">Name 2:</label>
+        <input type="text" id="name2" name="name2" value="{{ names[1] }}"><br>
+
+        <input type="submit" value="Save">
+    </form>
     </div>
     <div id="message"></div>
 
@@ -43,7 +53,7 @@
           // create new button
           const videoFeed = document.querySelector('#video-feed')
           const newButton = document.createElement('button')
-          newButton.textContent = 'New Button'
+          newButton.textContent = 'ENROLL USER1'
           newButton.onclick = () => {
             const video = document.querySelector('#video');
             const canvas = document.createElement('canvas');
@@ -60,7 +70,7 @@
 
           // create new button 2
           const newButton2 = document.createElement('button')
-          newButton2.textContent = 'New Button 2'
+          newButton2.textContent = 'ENROLL USER2'
           newButton2.onclick = () => {
             const video = document.querySelector('#video');
             const canvas = document.createElement('canvas');
@@ -113,5 +123,15 @@
         });
       }
     </script>
+  <script>
+  function MainTab() {
+  // Get the root URL (http://127.0.0.1:5000/)
+  var rootURL = window.location.protocol + "//" + window.location.host + "/";
+  // Reload the current tab
+  location.reload();
+  // Return to the root URL
+  window.location.href = rootURL;
+}
+</script>
   </body>
 </html>

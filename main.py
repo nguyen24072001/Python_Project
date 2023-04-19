@@ -24,27 +24,41 @@ MQTT_TOPIC = "my_topic"
 
 # Create a list to store the known face encodings
 known_encodings = []
+KNOWN_NAMES = ["User1", "User2"]
 
-# Loop over the images in the training folder and generate encodings for each face
-for filename in os.listdir(TRAINING_IMAGES_FOLDER):
-    image_path = os.path.join(TRAINING_IMAGES_FOLDER, filename)
-    image = face_recognition.load_image_file(image_path)
-    encodings = face_recognition.face_encodings(image)
-    if len(encodings) > 0:
-        encoding = encodings[0]
-        known_encodings.append(encoding)
-    else:
-        print(f"No face found in {image_path}")
-# Add the encodings for the second person
-for filename in os.listdir(SECOND_PERSON_TRAINING_IMAGES_FOLDER):
-    image_path = os.path.join(SECOND_PERSON_TRAINING_IMAGES_FOLDER, filename)
-    image = face_recognition.load_image_file(image_path)
-    encodings = face_recognition.face_encodings(image)
-    if len(encodings) > 0:
-        encoding = encodings[0]
-        known_encodings.append(encoding)
-    else:
-        print(f"No face found in {image_path}")
+
+def update_known_encodings():
+    global known_encodings
+    while True:
+        # Loop over the images in the training folder and generate encodings for each face
+        new_encodings = []
+        for filename in os.listdir(TRAINING_IMAGES_FOLDER):
+            image_path = os.path.join(TRAINING_IMAGES_FOLDER, filename)
+            image = face_recognition.load_image_file(image_path)
+            encodings = face_recognition.face_encodings(image)
+            if len(encodings) > 0:
+                encoding = encodings[0]
+                new_encodings.append(encoding)
+            else:
+                print(f"No face found in {image_path}")
+        # Add the encodings for the second person
+        for filename in os.listdir(SECOND_PERSON_TRAINING_IMAGES_FOLDER):
+            image_path = os.path.join(SECOND_PERSON_TRAINING_IMAGES_FOLDER, filename)
+            image = face_recognition.load_image_file(image_path)
+            encodings = face_recognition.face_encodings(image)
+            if len(encodings) > 0:
+                encoding = encodings[0]
+                new_encodings.append(encoding)
+            else:
+                print(f"No face found in {image_path}")
+        # Update the known encodings
+        known_encodings = new_encodings
+        # Sleep for 10 seconds before checking again
+        time.sleep(10)
+
+# Start the thread to continuously update the known encodings
+update_thread = threading.Thread(target=update_known_encodings)
+update_thread.start()
 # Create a Flask application
 app = Flask(__name__, static_folder='static')
 
@@ -145,11 +159,8 @@ def video_feed():
                         top, right, bottom, left = fc_location
                         cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
 
-                        # Display name if recognized
-                        if i == 0:
-                            name = "Phung Cong Nguyen"
-                        elif i == 1:
-                            name = "Second person name"
+                        # Get name of recognized person
+                        name = KNOWN_NAMES[i]
                         cv2.putText(frame, name, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
 
                         # Publish name to MQTT topic if elapsed time is greater than or equal to 15 seconds
@@ -180,8 +191,17 @@ def video_feed():
 # Define the route for the home page
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', names=KNOWN_NAMES)
 
+@app.route('/', methods=['POST'])
+def update_names():
+    name1 = request.form['name1']
+    name2 = request.form['name2']
+
+    KNOWN_NAMES[0] = name1
+    KNOWN_NAMES[1] = name2
+
+    return render_template('index.html', names=KNOWN_NAMES)
 
 if __name__ == '__main__':
     # Start the Flask application
