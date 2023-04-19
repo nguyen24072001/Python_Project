@@ -24,8 +24,10 @@
     <div id="action-button">
       <button onclick="performAction()">Perform Action</button>
     </div>
+    <div id="message"></div>
 
     <script>
+    let enrollCounter = 0;
       const submit = () => {
         const h1 = document.querySelector('#h1')
         const button = document.querySelector('#button')
@@ -43,21 +45,35 @@
           const newButton = document.createElement('button')
           newButton.textContent = 'New Button'
           newButton.onclick = () => {
-            const video = document.querySelector('#video')
-            const canvas = document.createElement('canvas')
-            canvas.width = video.videoWidth
-            canvas.height = video.videoHeight
-            canvas.getContext('2d').drawImage(video, 0, 0)
+            const video = document.querySelector('#video');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
             canvas.toBlob((blob) => {
-              const url = URL.createObjectURL(blob)
-              const a = document.createElement('a')
-              a.href = url
-              a.download = 'photo.jpg'
-              a.click()
-              URL.revokeObjectURL(url)
-            }, 'image/jpeg', 0.95)
+              const formData = new FormData();
+              formData.append('image', blob, 'photo.jpg');
+              uploadImage(formData, '/upload_image');
+            }, 'image/jpeg', 0.95);
           }
-          videoFeed.appendChild(newButton)
+          videoFeed.appendChild(newButton);
+
+          // create new button 2
+          const newButton2 = document.createElement('button')
+          newButton2.textContent = 'New Button 2'
+          newButton2.onclick = () => {
+            const video = document.querySelector('#video');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            canvas.toBlob((blob) => {
+              const formData = new FormData();
+              formData.append('image', blob, 'photo.jpg');
+              uploadImage(formData, '/upload_image2');
+            }, 'image/jpeg', 0.95);
+          }
+          videoFeed.appendChild(newButton2);
 
           navigator.mediaDevices.getUserMedia({ video: true })
             .then((stream) => {
@@ -76,7 +92,26 @@
         // code to perform action goes here
         alert('Action performed!')
       }
-    </script>
 
+      const uploadImage = (imageData, url) => {
+        fetch(url, {
+          method: 'POST',
+          body: imageData
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Failed to upload image');
+          }
+          enrollCounter++;
+          const message = document.querySelector('#message');
+          message.textContent = `Enroll success ${enrollCounter}!`;
+        })
+        .catch((error) => {
+          console.error(error);
+          const message = document.querySelector('#message');
+          message.textContent = 'Failed to upload image';
+        });
+      }
+    </script>
   </body>
 </html>

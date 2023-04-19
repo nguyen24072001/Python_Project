@@ -7,12 +7,12 @@ import face_recognition
 import dlib
 import os
 
-from flask import Response, Flask, render_template
+from flask import Response, Flask, render_template, request, jsonify
 from paho.mqtt import publish
 
 # Set the path to the folder containing the images to train on
-TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/Desktop/images"
-SECOND_PERSON_TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/Desktop/images1"
+TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/Desktop/train/images"
+SECOND_PERSON_TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/Desktop/train/images1"
 
 # Set the MQTT broker address and port
 # MQTT_SERVER = "192.168.9.218"
@@ -29,14 +29,22 @@ known_encodings = []
 for filename in os.listdir(TRAINING_IMAGES_FOLDER):
     image_path = os.path.join(TRAINING_IMAGES_FOLDER, filename)
     image = face_recognition.load_image_file(image_path)
-    encoding = face_recognition.face_encodings(image)[0]
-    known_encodings.append(encoding)
+    encodings = face_recognition.face_encodings(image)
+    if len(encodings) > 0:
+        encoding = encodings[0]
+        known_encodings.append(encoding)
+    else:
+        print(f"No face found in {image_path}")
 # Add the encodings for the second person
 for filename in os.listdir(SECOND_PERSON_TRAINING_IMAGES_FOLDER):
     image_path = os.path.join(SECOND_PERSON_TRAINING_IMAGES_FOLDER, filename)
     image = face_recognition.load_image_file(image_path)
-    encoding = face_recognition.face_encodings(image)[0]
-    known_encodings.append(encoding)
+    encodings = face_recognition.face_encodings(image)
+    if len(encodings) > 0:
+        encoding = encodings[0]
+        known_encodings.append(encoding)
+    else:
+        print(f"No face found in {image_path}")
 # Create a Flask application
 app = Flask(__name__, static_folder='static')
 
@@ -70,7 +78,33 @@ def publish_name(name):
 
                 f.write(f" ID: {message_id} | {name} ĐÃ ĐƯỢC NHẬN DIỆN VÀO LÚC | {datetime.now()}\n")
             break
+@app.route('/upload_image', methods=['POST'])
+def upload_image():
+    try:
+        i = 1
+        while os.path.exists(os.path.join(TRAINING_IMAGES_FOLDER, 'photo{}.jpg'.format(i))):
+            i += 1
+        filename = 'photo{}.jpg'.format(i)
+        file = request.files['image']
+        file.save(os.path.join(TRAINING_IMAGES_FOLDER, filename))
+        return jsonify({'success': True, 'filename': filename}), 200
+    except Exception as e:
+        print(f'Error uploading image: {e}')
+        return jsonify({'success': False, 'error': 'Failed to upload image'}), 500
 
+@app.route('/upload_image2', methods=['POST'])
+def upload_image2():
+    try:
+        i = 1
+        while os.path.exists(os.path.join(SECOND_PERSON_TRAINING_IMAGES_FOLDER, 'photo{}.jpg'.format(i))):
+            i += 1
+        filename = 'photo{}.jpg'.format(i)
+        file = request.files['image']
+        file.save(os.path.join(SECOND_PERSON_TRAINING_IMAGES_FOLDER, filename))
+        return jsonify({'success': True, 'filename': filename}), 200
+    except Exception as e:
+        print(f'Error uploading image: {e}')
+        return jsonify({'success': False, 'error': 'Failed to upload image'}), 500
 # Define the route for the video feed
 @app.route('/video_feed')
 def video_feed():
