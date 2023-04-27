@@ -75,7 +75,6 @@ def publish_name(name):
 
         try:
             publish.single(MQTT_TOPIC, payload=name, hostname=MQTT_SERVER, port=MQTT_PORT, qos=1)
-            publish.single(MQTT_TOPIC2, payload='file:///home/lqptoptvt/Desktop/train/images/photo7.jpg', hostname=MQTT_SERVER, port=MQTT_PORT, qos=1)
         except ConnectionError as ce:
             print(f"Connection error while publishing message: {ce}")
             # Wait for 5 seconds before retrying
@@ -104,6 +103,8 @@ def upload_image():
         file = request.files['image']
         file.save(os.path.join(TRAINING_IMAGES_FOLDER, filename))
         print(f'Newest picture uploaded User 1 : {filename}')
+        payload = f'file://{os.path.join(TRAINING_IMAGES_FOLDER, filename)}'
+        publish.single(MQTT_TOPIC2, payload=payload, hostname=MQTT_SERVER, port=MQTT_PORT, qos=1)
         return jsonify({'success': True, 'filename': filename}), 200
     except Exception as e:
         print(f'Error uploading image: {e}')
@@ -119,6 +120,8 @@ def upload_image2():
         file = request.files['image']
         file.save(os.path.join(SECOND_PERSON_TRAINING_IMAGES_FOLDER, filename))
         print(f'Newest picture uploaded User 2 : {filename}')
+        payload = f'file://{os.path.join(SECOND_PERSON_TRAINING_IMAGES_FOLDER, filename)}'
+        publish.single(MQTT_TOPIC2, payload=payload, hostname=MQTT_SERVER, port=MQTT_PORT, qos=1)
         return jsonify({'success': True, 'filename': filename}), 200
     except Exception as e:
         print(f'Error uploading image: {e}')
