@@ -21,10 +21,11 @@ MQTT_PORT = 1883
 message_id = 0
 # Set the MQTT topic to publish to
 MQTT_TOPIC = "my_topic"
+MQTT_TOPIC2 = "my_topic2"
 
 # Create a list to store the known face encodings
 known_encodings = []
-KNOWN_NAMES = ["User1", "User2"]
+KNOWN_NAMES = ["User 1", "User 2"]
 
 
 def update_known_encodings():
@@ -60,7 +61,7 @@ def update_known_encodings():
 update_thread = threading.Thread(target=update_known_encodings)
 update_thread.start()
 # Create a Flask application
-app = Flask(__name__, static_folder='static')
+app = Flask(__name__, static_folder='static', static_url_path='/static')
 
 # Create a face detector using dlib
 detector = dlib.get_frontal_face_detector()
@@ -74,6 +75,7 @@ def publish_name(name):
 
         try:
             publish.single(MQTT_TOPIC, payload=name, hostname=MQTT_SERVER, port=MQTT_PORT, qos=1)
+            publish.single(MQTT_TOPIC2, payload='file:///home/lqptoptvt/Desktop/train/images/photo7.jpg', hostname=MQTT_SERVER, port=MQTT_PORT, qos=1)
         except ConnectionError as ce:
             print(f"Connection error while publishing message: {ce}")
             # Wait for 5 seconds before retrying
@@ -101,6 +103,7 @@ def upload_image():
         filename = 'photo{}.jpg'.format(i)
         file = request.files['image']
         file.save(os.path.join(TRAINING_IMAGES_FOLDER, filename))
+        print(f'Newest picture uploaded User 1 : {filename}')
         return jsonify({'success': True, 'filename': filename}), 200
     except Exception as e:
         print(f'Error uploading image: {e}')
@@ -115,6 +118,7 @@ def upload_image2():
         filename = 'photo{}.jpg'.format(i)
         file = request.files['image']
         file.save(os.path.join(SECOND_PERSON_TRAINING_IMAGES_FOLDER, filename))
+        print(f'Newest picture uploaded User 2 : {filename}')
         return jsonify({'success': True, 'filename': filename}), 200
     except Exception as e:
         print(f'Error uploading image: {e}')
@@ -174,9 +178,15 @@ def video_feed():
                         top, right, bottom, left = fc_locations[0]
                         cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
 
+                        name = "Unknown User"
                         # Display "Unknown user" if not recognized
-                        cv2.putText(frame, "Unknown user", (left, top-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
-
+                        cv2.putText(frame, name, (left, top-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
+                        # Publish name to MQTT topic if elapsed time is greater than or equal to 15 seconds
+                        if elapsed_time >= 15:
+                            publish_thread = threading.Thread(target=publish_name, args=(name,))
+                            publish_thread.start()
+                            last_publish_time = current_time
+                            break
             # Convert the frame to a JPEG image
             ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
