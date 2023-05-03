@@ -81,7 +81,7 @@
       const defautPassword = "1"
 
       if (value === defautPassword){
-      const doorbellSound = new Audio('static/Wrong.mp3');
+      const doorbellSound = new Audio('static/OK.mp3');
          doorbellSound.play();
         h1.innerHTML = ''
         button.innerHTML = ''
@@ -119,7 +119,7 @@
       button.addEventListener('click', () => {
         numericKeypadInput.value += button.value;
         passwordInput.value += button.value;
-        const doorbellSound = new Audio('static/clicked.mp3');
+        const doorbellSound = new Audio('static/Click.mp3');
         doorbellSound.play();
       });
     });

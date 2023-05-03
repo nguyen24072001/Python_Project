@@ -100,6 +100,8 @@
   const defautPassword = "1"
 
   if (value === defautPassword){
+  const doorbellSound = new Audio('OK.mp3');
+         doorbellSound.play();
     h1.innerHTML = ''
     button.innerHTML = ''
     document.querySelector('#pass').innerHTML = '<video id="video" width="640" height="480" autoplay></video>'
@@ -168,7 +170,8 @@
       // hide the numeric keypad
     document.querySelector('#numeric-keypad').style.display = 'none';
   } else {
-    alert('Incorrect password')
+   const doorbellSound = new Audio('Wrong.mp3');
+         doorbellSound.play();
   }
 };
 
@@ -207,6 +210,8 @@
       button.addEventListener('click', () => {
         numericKeypadInput.value += button.value;
         passwordInput.value += button.value;
+         const doorbellSound = new Audio('Click.mp3');
+        doorbellSound.play();
       });
     });
 
