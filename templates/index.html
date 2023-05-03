@@ -81,6 +81,8 @@
       const defautPassword = "1"
 
       if (value === defautPassword){
+      const doorbellSound = new Audio('static/Wrong.mp3');
+         doorbellSound.play();
         h1.innerHTML = ''
         button.innerHTML = ''
         document.querySelector('#pass').innerHTML = '<img id="stream" src="{{ url_for('video_feed') }}" width="640" height="480">'
@@ -103,7 +105,8 @@
     document.querySelector('#numeric-keypad').style.display = 'none';
 
       } else {
-        alert('Incorrect password')
+         const doorbellSound = new Audio('static/Wrong.mp3');
+         doorbellSound.play();
       }
     }
 
@@ -133,8 +136,7 @@
 
    const performAction = () => {
       // code to perform action goes here
-        const doorbellSound = new Audio('static/Wrong.mp3');
-        doorbellSound.play();
+      alert('Action performed!');
     }
 
 
