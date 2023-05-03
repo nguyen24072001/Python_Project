@@ -116,6 +116,8 @@
       button.addEventListener('click', () => {
         numericKeypadInput.value += button.value;
         passwordInput.value += button.value;
+        const doorbellSound = new Audio('static/clicked.mp3');
+        doorbellSound.play();
       });
     });
 
