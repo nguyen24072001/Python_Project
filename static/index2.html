@@ -6,99 +6,172 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" type="image/png" href="favicon.png">
     <title>AIOT DEMO</title>
+    <style>
+  /* Hide the buttons initially */
+  #action-button button {
+    display: none;
+  }
+
+  #action-button.show {
+    display: block;
+  }
+
+  .hide {
+    display: none;
+  }
+
+  #numeric-keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-gap: 5px;
+    }
+
+    .numeric-keypad-button {
+      font-size: 24px;
+      padding: 10px;
+      background-color: #eee;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #numeric-keypad-backspace-button {
+      grid-column: 2 / 4;
+    }
+    #numeric-keypad-input {
+      display: none;
+    }
+
+</style>
   </head>
   <body>
 
     <form>
-      <h1 id="h1">enter password here
-        <input type="password" id="input">
-      </h1>
-    </form>
-    <div id="button">
-      <button onclick=submit()>submit</button>
-    </div>
+  <h1 id="h1">enter password here
+    <input type="password" id="input">
+  </h1>
+</form>
+<div id="button">
+  <button onclick="submit()">submit</button>
+</div>
 
-    <div id="pass"></div>
+<div id="pass"></div>
 
-    <div id="video-feed">
-    </div>
+<div id="video-feed">
+</div>
 
-    <div id="action-button">
-      <button onclick="performAction()">Perform Action</button>
-      <button onclick="MainTab()">Main Tab</button>
-      <form method="POST" action="/">
-        <label for="name1">Name 1:</label>
-        <input type="text" id="name1" name="name1" value="USER 1"><br>
+<div id="action-button" class="hide">
+  <button id="action-button-1" onclick="performAction()">Perform Action</button>
+  <button id="action-button-2" onclick="MainTab()">Main Tab</button>
+  <form method="POST" action="/">
+    <label for="name1">Name 1:</label>
+    <input type="text" id="name1" name="name1" value="USER 1" style="display: none;"><br>
 
-        <label for="name2">Name 2:</label>
-        <input type="text" id="name2" name="name2" value="USER 2"><br>
+    <label for="name2">Name 2:</label>
+    <input type="text" id="name2" name="name2" value="USER 2" style="display: none;"><br>
 
-        <input type="submit" value="Save">
-    </form>
-    </div>
-    <div id="message"></div>
+    <input type="submit" value="Save" style="display: none;">
+  </form>
+</div>
+<div id="message"></div>
+    <input type="text" id="numeric-keypad-input" readonly>
+  <div id="numeric-keypad" >
+    <button class="numeric-keypad-button" value="1">1</button>
+    <button class="numeric-keypad-button" value="2">2</button>
+    <button class="numeric-keypad-button" value="3">3</button>
+    <button class="numeric-keypad-button" value="4">4</button>
+    <button class="numeric-keypad-button" value="5">5</button>
+    <button class="numeric-keypad-button" value="6">6</button>
+    <button class="numeric-keypad-button" value="7">7</button>
+    <button class="numeric-keypad-button" value="8">8</button>
+    <button class="numeric-keypad-button" value="9">9</button>
+    <button class="numeric-keypad-button" value="0">0</button>
+    <button id="numeric-keypad-backspace-button">←</button>
+  </div>
 
     <script>
-    let enrollCounter = 0;
+      let enrollCounter = 0;
+      const submitButton = document.querySelector('#submit-button');
       const submit = () => {
-        const h1 = document.querySelector('#h1')
-        const button = document.querySelector('#button')
-        const matkhau = document.querySelector('#input')
-        const value = matkhau. value
-        const defautPassword = "ptit"
+  const h1 = document.querySelector('#h1')
+  const button = document.querySelector('#button')
+  const matkhau = document.querySelector('#input')
+  const value = matkhau. value
+  const defautPassword = "1"
 
-        if (value === defautPassword){
-          h1.innerHTML = ''
-          button.innerHTML = ''
-          document.querySelector('#pass').innerHTML = '<video id="video" width="640" height="480" autoplay></video>'
+  if (value === defautPassword){
+    h1.innerHTML = ''
+    button.innerHTML = ''
+    document.querySelector('#pass').innerHTML = '<video id="video" width="640" height="480" autoplay></video>'
 
-          // create new button
-          const videoFeed = document.querySelector('#video-feed')
-          const newButton = document.createElement('button')
-newButton.textContent = 'ENROLL USER 1'
-newButton.onclick = () => {
-  const video = document.querySelector('#video');
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-  canvas.toBlob((blob) => {
-    const formData = new FormData();
-    formData.append('image', blob, 'photo.jpg');
-    uploadImage(formData, '/upload_image', 'USER1');
-  }, 'image/jpeg', 0.95);
-}
-videoFeed.appendChild(newButton);
+    // Show the buttons
+    const actionButton1 = document.querySelector('#action-button-1');
+    const actionButton2 = document.querySelector('#action-button-2');
+    actionButton1.style.display = 'block';
+    actionButton2.style.display = 'block';
 
-          // create new button 2
-          const newButton2 = document.createElement('button')
-newButton2.textContent = 'ENROLL USER 2'
-newButton2.onclick = () => {
-  const video = document.querySelector('#video');
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-  canvas.toBlob((blob) => {
-    const formData = new FormData();
-    formData.append('image', blob, 'photo.jpg');
-    uploadImage(formData, '/upload_image2', 'USER2');
-  }, 'image/jpeg', 0.95);
-}
-videoFeed.appendChild(newButton2);
+    // Show the name input fields and the save button
+    const name1Input = document.querySelector('#name1');
+    const name2Input = document.querySelector('#name2');
+    const saveButton = document.querySelector('input[type="submit"]');
+    name1Input.style.display = 'block';
+    name2Input.style.display = 'block';
+    saveButton.style.display = 'block';
 
-          navigator.mediaDevices.getUserMedia({ video: true })
-            .then((stream) => {
-              const video = document.querySelector('#video')
-              video.srcObject = stream
-            })
-            .catch((error) => {
-              console.error(error)
-            })
-        } else {
-          alert('Incorrect password')
-        }
-      }
+    // Add the "show" class to the "action-button" div
+    const actionButtonDiv = document.querySelector('#action-button');
+    actionButtonDiv.classList.add('show');
+
+    // create new button
+    const videoFeed = document.querySelector('#video-feed')
+    const newButton = document.createElement('button')
+    newButton.textContent = 'ENROLL USER 1'
+    newButton.onclick = () => {
+      const video = document.querySelector('#video');
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      canvas.toBlob((blob) => {
+        const formData = new FormData();
+        formData.append('image', blob, 'photo.jpg');
+        uploadImage(formData, '/upload_image', 'USER1');
+      }, 'image/jpeg', 0.95);
+    }
+    videoFeed.appendChild(newButton);
+
+    // create new button 2
+    const newButton2 = document.createElement('button')
+    newButton2.textContent = 'ENROLL USER 2'
+    newButton2.onclick = () => {
+      const video = document.querySelector('#video');
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      canvas.toBlob((blob) => {
+        const formData = new FormData();
+        formData.append('image', blob, 'photo.jpg');
+        uploadImage(formData, '/upload_image2', 'USER2');
+      }, 'image/jpeg', 0.95);
+    }
+    videoFeed.appendChild(newButton2);
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
+        const video = document.querySelector('#video')
+        video.srcObject = stream
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+      // hide the numeric keypad
+    document.querySelector('#numeric-keypad').style.display = 'none';
+  } else {
+    alert('Incorrect password')
+  }
+};
+
 
       const performAction = () => {
         // code to perform action goes here
@@ -106,36 +179,52 @@ videoFeed.appendChild(newButton2);
       }
 
       const uploadImage = (imageData, url, user) => {
-  fetch(url, {
-    method: 'POST',
-    body: imageData
-  })
-  .then((response) => {
-    if (!response.ok) {
-      throw new Error('Failed to upload image');
-    }
-    enrollCounter++;
-    const message = document.querySelector('#message');
-    message.textContent = `Enroll success ${enrollCounter} for ${user} !`;
-  })
-  .catch((error) => {
-    console.error(error);
-    const message = document.querySelector('#message');
-    message.textContent = 'Failed to upload image';
-  });
-}
+        fetch(url, {
+          method: 'POST',
+          body: imageData
+        })
+        .then((response)=> {
+          if (!response.ok) {
+            throw new Error('Failed to upload image');
+          }
+          enrollCounter++;
+          const message = document.querySelector('#message');
+          message.textContent = `Enroll success ${enrollCounter} for ${user} !`;
+        })
+        .catch((error) => {
+          console.error(error);
+          const message = document.querySelector('#message');
+          message.textContent = 'Failed to upload image';
+        });
+      }
 
+      const numericKeypadInput = document.querySelector('#numeric-keypad-input');
+    const numericKeypadButtons = document.querySelectorAll('.numeric-keypad-button');
+    const numericKeypadBackspaceButton = document.querySelector('#numeric-keypad-backspace-button');
+    const passwordInput = document.querySelector('#input');
+
+    numericKeypadButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        numericKeypadInput.value += button.value;
+        passwordInput.value += button.value;
+      });
+    });
+
+    numericKeypadBackspaceButton.addEventListener('click', () => {
+      numericKeypadInput.value= numericKeypadInput.value.slice(0, -1);
+      passwordInput.value = passwordInput.value.slice(0, -1);
+    });
 
     </script>
-  <script>
-  function MainTab() {
-  // Get the root URL (http://127.0.0.1:5000/)
-  var rootURL = window.location.protocol + "//" + window.location.host + "/";
-  // Reload the current tab
-  location.reload();
-  // Return to the root URL
-  window.location.href = rootURL;
-}
-</script>
+    <script>
+      function MainTab() {
+        // Get the root URL (http://127.0.0.1:5000/)
+        var rootURL = window.location.protocol + "//" + window.location.host + "/";
+        // Reload the current tab
+        location.reload();
+        // Return to the root URL
+        window.location.href = rootURL;
+      }
+    </script>
   </body>
 </html>

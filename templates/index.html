@@ -1,78 +1,154 @@
 <!DOCTYPE html>
-<html lang="en"> <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
-    <title>AIOT DEMO</title>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+  <title>AIOT DEMO</title>
+  <style>
+    .hidden {
+      display: none;
+    }
+
+    #numeric-keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-gap: 5px;
+    }
+
+    .numeric-keypad-button {
+      font-size: 24px;
+      padding: 10px;
+      background-color: #eee;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #numeric-keypad-backspace-button {
+      grid-column: 2 / 4;
+    }
+    #numeric-keypad-input {
+      display: none;
+    }
+
+
+  </style>
+
 </head>
 <body>
-
-<form>
-    <h1 id="h1">enter password here
-        <input type="password" id="input">
+  <form>
+    <h1 id="h1">Enter password here
+      <input type="password" id="input">
     </h1>
-</form>
-<div id="button">
-    <button onclick=submit()>submit</button>
-</div>
-<div id="pass"></div>
+  </form>
+  <div id="button">
+    <button onclick="submit()">Submit</button>
+  </div>
+  <div id="pass"></div>
 
-<div id="video-feed">
-</div>
-<div id="doorbell-button">
-  <button onclick="ringDoorbell()">Ring Doorbell</button>
-</div>
-<div id="action-button">
+  <div id="video-feed"></div>
+  <div id="doorbell-button" class="hidden">
+    <button onclick="ringDoorbell()">Ring Doorbell</button>
+  </div>
+  <div id="action-button" class="hidden">
     <button onclick="performAction()">Perform Action</button>
     <button onclick="openNewTab()">Enroll Tab</button>
-</div>
+  </div>
 
-<script>
+  <input type="text" id="numeric-keypad-input" readonly>
+  <div id="numeric-keypad" >
+    <button class="numeric-keypad-button" value="1">1</button>
+    <button class="numeric-keypad-button" value="2">2</button>
+    <button class="numeric-keypad-button" value="3">3</button>
+    <button class="numeric-keypad-button" value="4">4</button>
+    <button class="numeric-keypad-button" value="5">5</button>
+    <button class="numeric-keypad-button" value="6">6</button>
+    <button class="numeric-keypad-button" value="7">7</button>
+    <button class="numeric-keypad-button" value="8">8</button>
+    <button class="numeric-keypad-button" value="9">9</button>
+    <button class="numeric-keypad-button" value="0">0</button>
+    <button id="numeric-keypad-backspace-button">←</button>
+  </div>
+
+  <script>
     const submit = () => {
-        const h1 = document.querySelector('#h1')
-        const button = document.querySelector('#button')
-        const matkhau = document.querySelector('#input')
-        const value = matkhau. value
-        const defautPassword = "ptit"
+      const h1 = document.querySelector('#h1')
+      const button = document.querySelector('#button')
+      const matkhau = document.querySelector('#input')
+      const value = matkhau. value
+      const defautPassword = "1"
 
-        if (value === defautPassword){
-            h1.innerHTML = ''
-            button.innerHTML = ''
-            document.querySelector('#pass').innerHTML = '<img id="stream" src="{{ url_for('video_feed') }}" width="640" height="480">'
+      if (value === defautPassword){
+        h1.innerHTML = ''
+        button.innerHTML = ''
+        document.querySelector('#pass').innerHTML = '<img id="stream" src="{{ url_for('video_feed') }}" width="640" height="480">'
 
-            // create new button
-            const videoFeed = document.querySelector('#video-feed')
-            const newButton = document.createElement('button')
-            newButton.textContent = 'New Button'
-            newButton.onclick = () => {
-                alert('You clicked the new button!')
-            }
-            videoFeed.appendChild(newButton)
-        } else {
-            alert('Incorrect password')
+        // show the hidden buttons
+        const doorbellButton = document.querySelector('#doorbell-button')
+        const actionButton = document.querySelector('#action-button')
+        doorbellButton.classList.remove('hidden')
+        actionButton.classList.remove('hidden')
+
+        // create new button
+        const videoFeed = document.querySelector('#video-feed')
+        const newButton = document.createElement('button')
+        newButton.textContent = 'New Button'
+        newButton.onclick = () => {
+          alert('You clicked the new button!')
         }
+        videoFeed.appendChild(newButton)
+        // hide the numeric keypad
+    document.querySelector('#numeric-keypad').style.display = 'none';
+
+      } else {
+        alert('Incorrect password')
+      }
     }
 
-    const performAction = () => {
-        // code to perform action goes here
-        alert('Action performed!')
-    }
+    const numericKeypadInput = document.querySelector('#numeric-keypad-input');
+    const numericKeypadButtons = document.querySelectorAll('.numeric-keypad-button');
+    const numericKeypadBackspaceButton = document.querySelector('#numeric-keypad-backspace-button');
+    const passwordInput = document.querySelector('#input');
+
+    numericKeypadButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        numericKeypadInput.value += button.value;
+        passwordInput.value += button.value;
+      });
+    });
+
+    numericKeypadBackspaceButton.addEventListener('click', () => {
+      numericKeypadInput.value= numericKeypadInput.value.slice(0, -1);
+      passwordInput.value = passwordInput.value.slice(0, -1);
+    });
 
     const ringDoorbell = () => {
   const doorbellSound = new Audio('static/doorbell.mp3');
   doorbellSound.play();
 }
-</script>
-<script>
-function openNewTab() {
-  // Reload the current tab
-  location.reload();
-  // Get the root URL (http://127.0.0.1:5000/)
-  var rootURL = window.location.protocol + "//" + window.location.host + "/";
-  // Return to http://127.0.0.1:5000/static/index2.html
-  window.location.href = rootURL + "static/index2.html";
-}
-</script>
 
-</body> </html>
+   const performAction = () => {
+      // code to perform action goes here
+      alert('Action performed!');
+    }
+
+
+    </script>
+    <script>
+
+    function openNewTab() {
+      // Reload the current tab
+      location.reload();
+
+      // Get the root URL (http://127.0.0.1:5000/)
+      var rootURL = window.location.protocol + "//" + window.location.host + "/";
+
+      // Redirect to http://127.0.0.1:5000/static/index2.html
+      window.location.href = rootURL + "static/index2.html";
+    }
+
+  </script>
+</body>
+</html>
