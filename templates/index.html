@@ -12,26 +12,50 @@
     }
 
     #numeric-keypad {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-gap: 5px;
-    }
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 20px;
+  margin-top: 10px;
+}
 
-    .numeric-keypad-button {
-      font-size: 24px;
-      padding: 10px;
-      background-color: #eee;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+.numeric-keypad-button {
+  font-family: 'Roboto', sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+  padding: 10px 20px;
+  color: #fff;
+  background-image: linear-gradient(to bottom, #4CAF50, #2E7D32);
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background-image 0.2s ease-in-out;
+}
 
-    #numeric-keypad-backspace-button {
-      grid-column: 2 / 4;
-    }
-    #numeric-keypad-input {
-      display: none;
-    }
+.numeric-keypad-button:hover {
+  background-image: linear-gradient(to bottom, #3e8e41, #1B5E20);
+}
+
+#numeric-keypad-backspace-button {
+  grid-column: 2 / 4;
+  background-color: #f44336;
+  border-radius: 5px;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  font-weight: bold;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+#numeric-keypad-backspace-button:hover {
+  background-color: #c62828;
+}
+
+#numeric-keypad-input {
+  display: none;
+}
 
 
   </style>
