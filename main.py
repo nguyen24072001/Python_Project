@@ -15,7 +15,7 @@ TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/Desktop/train/images"
 SECOND_PERSON_TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/Desktop/train/images1"
 
 # Set the MQTT broker address and port
-# MQTT_SERVER = "192.168.9.218"
+#MQTT_SERVER = "192.168.9.218"
 MQTT_SERVER = "localhost"
 MQTT_PORT = 1883
 message_id = 0
@@ -134,17 +134,20 @@ def video_feed():
 
     def generate_frames():
         last_publish_time = time.time()
+        frame_count = 0
+        recognized_count = 0
 
         while True:
 
             # Capture frame-by-frame
             ret, frame = cap.read()
+            frame_count += 1
 
             # Convert BGR image format to RGB format
             rgb_frame = frame[:, :, ::-1]
 
             # Detect faces in the frame using dlib
-            dlib_faces = detector(rgb_frame, 1)
+            dlib_faces = detector(rgb_frame, 2)
 
             # Convert dlib_faces to a list of tuples of (top, right, bottom, left) coordinates
             fc_locations = [(f.top(), f.right(), f.bottom(), f.left()) for f in dlib_faces]
@@ -161,21 +164,41 @@ def video_feed():
                     if True in matches:
                         # Get the index of the detected person
                         i = matches.index(True)
-
                         # Draw green box around detected face
                         top, right, bottom, left = fc_location
                         cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
 
                         # Get name of recognized person
                         name = KNOWN_NAMES[i]
-                        cv2.putText(frame, name, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+
+                        # Calculate recognition confidence
+                        confidence = face_recognition.face_distance([known_encodings[i]], fc_encoding)[0]
+                        percent_confidence = (1 - confidence) * 100
+
+                        # Draw name and confidence on green box
+                        cv2.rectangle(frame, (left, bottom + 10), (right, bottom + 30), (0, 255, 0), cv2.FILLED)
+                        cv2.putText(frame, f"{name} ({percent_confidence:.2f}% confident)", (left + 6, bottom + 25),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+
+                        # Calculate recognition rate
+                        percent_recognized = recognized_count / frame_count * 100
+
+                        # Draw recognition rate on green box
+                        cv2.rectangle(frame, (left, bottom + 40), (right, bottom + 60), (0, 255, 0), cv2.FILLED)
+                        cv2.putText(frame, f"Recognition rate: {percent_recognized:.2f}%", (left + 6, bottom + 55),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
 
                         # Publish name to MQTT topic if elapsed time is greater than or equal to 15 seconds
                         if elapsed_time >= 15:
                             publish_thread = threading.Thread(target=publish_name, args=(name,))
                             publish_thread.start()
                             last_publish_time = current_time
+                            recognized_count += 1
                             break
+                       # if frame_count % 30 == 0:
+                          #  percent_recognized = recognized_count / frame_count * 100
+                          #  print(f"Percent of face recognition: {percent_recognized}%")
+
                     else:
                         # Draw red box around detected face
                         top, right, bottom, left = fc_locations[0]
@@ -197,6 +220,7 @@ def video_feed():
             # Yield the frame as a response to the client
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            # Calculate and log the percentage of face recognition every 30 frames
 
     # Return the response with MIME type of multipart/x-mixed-replace
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
