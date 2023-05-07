@@ -215,15 +215,14 @@
 }
 
 let clickCount = 0;
-const lines = ["xinchao", "vietnam"]; // define all the lines here
-
+const lines = ["Hãy Ấn Vào Enroll Tab", "Nhập PassWord Hợp Lệ", "Ấn Vào ENROLL USER 1(2)" , "Lưu Ý Chỉ Enroll 1 Mặt" ,"Nhập Tên Tương Ứng","Ấn Save Về Main Tab","Khung Xanh Lá => Bước 9","Khung Đỏ => Bước 1","Chờ 1 Lúc Khi Đèn Nháy","Đặt Ngón Tay Lên Máy Quét","Servo OFF => Buoc 9","Servo ON => Ring Doorbell"]; // define all the lines here
 const performAction = () => {
   clickCount++;
 
   // get the current line based on the click count
   const line = lines[(clickCount - 1) % lines.length];
 
-  const delay = 2000; // set the delay between displaying each line in milliseconds
+  const delay = 15000; // set the delay between displaying each line in milliseconds
 
   // create a table element
   const table = document.createElement('table');
@@ -232,7 +231,7 @@ const performAction = () => {
   // create the first row for the current line
   const row1 = document.createElement('tr');
   const cell1 = document.createElement('td');
-  cell1.textContent = `${clickCount} click:`;
+  cell1.textContent = `Bước ${clickCount}: `;
   const cell2 = document.createElement('td');
   cell2.textContent = line;
   row1.appendChild(cell1);

@@ -15,7 +15,7 @@ TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/Desktop/train/images"
 SECOND_PERSON_TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/Desktop/train/images1"
 
 # Set the MQTT broker address and port
-#MQTT_SERVER = "192.168.9.218"
+# MQTT_SERVER = "192.168.9.218"
 MQTT_SERVER = "localhost"
 MQTT_PORT = 1883
 message_id = 0
