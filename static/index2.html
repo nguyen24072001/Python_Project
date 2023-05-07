@@ -121,6 +121,19 @@
   border: 5px solid;
   border-image: linear-gradient(to bottom, #000000, #808080) 1;
 }
+#red-square {
+  display: none;
+  width: 190px;
+  height: 190px;
+  background-color: transparent;
+  border: 5px solid rgba(255, 0, 0, 0.5); /* Set border color with alpha value */
+  box-sizing: border-box;
+  position: absolute;
+  top: 36%;
+  left: calc(26% - 20px);
+  transform: translate(-36%, -26%);
+  padding: 50px; /* Add padding to the content area */
+}
 </style>
   </head>
   <body>
@@ -137,6 +150,7 @@
 <div id="pass"></div>
 
 <div id="video-feed">
+  <div id="red-square"></div>
 </div>
 
 <div id="action-button" class="hide">
@@ -210,6 +224,7 @@
     const newButton = document.createElement('button')
     newButton.textContent = 'ENROLL USER 1'
     newButton.onclick = () => {
+    if (confirm("Are you sure you want to enroll USER 1?\nCancel and Perform Action for better recognition\nOK to Enroll !")) {
       const video = document.querySelector('#video');
       const canvas = document.createElement('canvas');
       canvas.width = video.videoWidth;
@@ -220,6 +235,7 @@
         formData.append('image', blob, 'photo.jpg');
         uploadImage(formData, '/upload_image', 'USER1');
       }, 'image/jpeg', 0.95);
+      }
     }
     videoFeed.appendChild(newButton);
 
@@ -227,6 +243,7 @@
     const newButton2 = document.createElement('button')
     newButton2.textContent = 'ENROLL USER 2'
     newButton2.onclick = () => {
+    if (confirm("Are you sure you want to enroll USER 2?\nCancel and Perform Action for better recognition\nOK to Enroll !")) {
       const video = document.querySelector('#video');
       const canvas = document.createElement('canvas');
       canvas.width = video.videoWidth;
@@ -237,6 +254,7 @@
         formData.append('image', blob, 'photo.jpg');
         uploadImage(formData, '/upload_image2', 'USER2');
       }, 'image/jpeg', 0.95);
+      }
     }
     videoFeed.appendChild(newButton2);
 
@@ -260,6 +278,9 @@
       const performAction = () => {
         // code to perform action goes here
         alert('Action performed!')
+        // Show the red square
+  const redSquare = document.querySelector("#red-square");
+  redSquare.style.display = "block";
       }
 
       const uploadImage = (imageData, url, user) => {

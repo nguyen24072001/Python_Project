@@ -214,10 +214,46 @@
   doorbellSound.play();
 }
 
-   const performAction = () => {
-      // code to perform action goes here
-      alert('Action performed!');
+let clickCount = 0;
+const lines = ["xinchao", "vietnam"]; // define all the lines here
+
+const performAction = () => {
+  clickCount++;
+
+  // get the current line based on the click count
+  const line = lines[(clickCount - 1) % lines.length];
+
+  const delay = 2000; // set the delay between displaying each line in milliseconds
+
+  // create a table element
+  const table = document.createElement('table');
+  const tbody = document.createElement('tbody');
+
+  // create the first row for the current line
+  const row1 = document.createElement('tr');
+  const cell1 = document.createElement('td');
+  cell1.textContent = `${clickCount} click:`;
+  const cell2 = document.createElement('td');
+  cell2.textContent = line;
+  row1.appendChild(cell1);
+  row1.appendChild(cell2);
+  tbody.appendChild(row1);
+
+  // add the table to the #action-button div
+  document.querySelector('#action-button').appendChild(table);
+  table.appendChild(tbody);
+
+  // set a timeout to remove the table after the delay time
+  setTimeout(() => {
+    document.querySelector('#action-button').removeChild(table);
+
+    // check if all tables have been removed
+    if (document.querySelectorAll('#action-button table').length === 0) {
+      // reset the click count
+      clickCount = 0;
     }
+  }, delay);
+};
 
 
     </script>
