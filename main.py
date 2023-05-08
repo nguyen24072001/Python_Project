@@ -57,6 +57,7 @@ def update_known_encodings():
         # Sleep 10 giây trước khi kiểm tra lại
         time.sleep(10)
 
+
 # Bắt đầu chuỗi để cập nhật liên tục các bảng mã đã biết
 update_thread = threading.Thread(target=update_known_encodings)
 
@@ -66,6 +67,7 @@ app = Flask(__name__, static_folder='static', static_url_path='/static')
 
 # Tạo máy dò khuôn mặt bằng dlib
 detector = dlib.get_frontal_face_detector()
+
 
 # Function publish name ==> MQTT topic nếu có kết quả khớp với mã hóa khuôn mặt đã biết
 def publish_name(name):
@@ -89,11 +91,13 @@ def publish_name(name):
         else:
 
             print(f"User OK !: {name}")
-                # Lưu tên và thời gian vào tập tin
+            # Lưu tên và thời gian vào tập tin
             with open("log.txt", "a") as f:
 
                 f.write(f" ID: {message_id} | {name} ĐÃ ĐƯỢC NHẬN DIỆN VÀO LÚC | {datetime.now()}\n")
             break
+
+
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
     try:
@@ -111,6 +115,7 @@ def upload_image():
         print(f'Error uploading image: {e}')
         return jsonify({'success': False, 'error': 'Failed to upload image'}), 500
 
+
 @app.route('/upload_image2', methods=['POST'])
 def upload_image2():
     try:
@@ -127,6 +132,8 @@ def upload_image2():
     except Exception as e:
         print(f'Error uploading image: {e}')
         return jsonify({'success': False, 'error': 'Failed to upload image'}), 500
+
+
 # Xác định luồng cho nguồn cấp dữ liệu video_feed
 @app.route('/video_feed')
 def video_feed():
@@ -204,7 +211,7 @@ def video_feed():
 
                         name = "Unknown User"
                         # Hiển thị "Người dùng không xác định" nếu không được nhận dạng
-                        cv2.putText(frame, name, (left, top-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
+                        cv2.putText(frame, name, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
                         # Publish name => MQTT topic nếu thời gian trôi qua lớn hơn hoặc bằng 15 giây
                         if elapsed_time >= 15:
                             publish_thread = threading.Thread(target=publish_name, args=(name,))
@@ -223,10 +230,12 @@ def video_feed():
     # Trả lại phản hồi với loại MIME của multipart/x-mixed-replace
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+
 # Xác định luồng cho trang chủ
 @app.route('/')
 def index():
     return render_template('index.html', names=KNOWN_NAMES)
+
 
 @app.route('/', methods=['POST'])
 def update_names():
@@ -238,7 +247,8 @@ def update_names():
 
     return render_template('index.html', names=KNOWN_NAMES)
 
-if __name__ == '__main__': # Bắt đầu ứng dụng Flask
+
+if __name__ == '__main__':  # Bắt đầu ứng dụng Flask
     app.run(debug=False)
     # Trong Flask, khi chạy ứng dụng, Flask sẽ tìm module chính (tức là file .py chứa đoạn mã này) và chạy nó.
     # Tuy nhiên, khi sử dụng Flask như một module trong một ứng dụng lớn hơn, ví dụ như khi triển khai ứng dụng
