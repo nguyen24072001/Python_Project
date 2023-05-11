@@ -139,6 +139,8 @@ def upload_image2():
 def video_feed():
     # Mở máy ảnh mặc định
     cap = cv2.VideoCapture(0)
+  #  cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+  #  cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
     def generate_frames():
         last_publish_time = time.time()
@@ -166,7 +168,7 @@ def video_feed():
 
                 # So sánh với mã hóa khuôn mặt đã biết
                 for fc_location, fc_encoding in zip(fc_locations, fc_encodings):
-                    matches = face_recognition.compare_faces(known_encodings, fc_encoding)
+                    matches = face_recognition.compare_faces(known_encodings, fc_encoding, tolerance=0.6)
                     current_time = time.time()
                     elapsed_time = current_time - last_publish_time
                     if True in matches:

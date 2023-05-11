@@ -12,8 +12,8 @@
     }
 
     body {
-    background-color: #f2f2f2; /* Set a light background color for the page */
-  }
+  background: linear-gradient(to bottom, #AFF1DA, #F9EA8F);
+}
 
   #h1 {
     margin-top: 0px;
@@ -62,6 +62,21 @@
     background: linear-gradient(to bottom right, #ff0066, #00c9ff); /* Set a gradient background for the button on hover */
   }
 
+
+  button2 {
+  background: linear-gradient(to bottom right, #dc1c13, #FFFFFF); / Set a gradient background for the emergency button /
+padding: 10px 20px;
+font-size: 24px;
+border-radius: 5px;
+border: none;
+box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3); / Add a shadow effect /
+cursor: pointer;
+}
+button2:hover {
+background: linear-gradient(to bottom right, #FFFFFF, #dc1c13); / Set a gradient background for the emergency button on hover */
+}
+
+
     #numeric-keypad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -75,7 +90,7 @@
   font-weight: bold;
   padding: 10px 20px;
   color: #fff;
-  background-image: linear-gradient(to bottom, #4CAF50, #2E7D32);
+  background-image: linear-gradient(to bottom, #333333, #999999);
   border: none;
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
@@ -84,7 +99,7 @@
 }
 
 .numeric-keypad-button:hover {
-  background-image: linear-gradient(to bottom, #3e8e41, #1B5E20);
+  background-image: linear-gradient(to bottom, #222222, #666666);
 }
 
 #numeric-keypad-backspace-button {
@@ -119,12 +134,12 @@
 </head>
 <body>
   <form>
-    <h1 id="h1">Enter password here
+    <h1 id="h1">Vui Lòng Nhập Mật Khẩu !
       <input type="password" id="input">
     </h1>
   </form>
   <div id="button">
-    <button onclick="submit()">Submit</button>
+    <button onclick="submit()">ENTER</button>
   </div>
   <div id="pass"></div>
 
@@ -133,7 +148,7 @@
     <button onclick="ringDoorbell()">Ring Doorbell</button>
   </div>
   <div id="action-button" class="hidden">
-    <button onclick="performAction()">Perform Action</button>
+    <button onclick="performAction()">Instructions</button>
     <button onclick="openNewTab()">Enroll Tab</button>
   </div>
 
@@ -175,10 +190,13 @@
 
         // create new button
         const videoFeed = document.querySelector('#video-feed')
-        const newButton = document.createElement('button')
-        newButton.textContent = 'New Button'
+        const newButton = document.createElement('button2')
+        newButton.textContent = 'Emergency Situation'
         newButton.onclick = () => {
-          alert('You clicked the new button!')
+         const phoneNumber = '123-456-7890'
+      const address = 'PTIT'
+      const message = `Call this phone number: ${phoneNumber}\nGo to this address: ${address}`
+      alert(message)
         }
         videoFeed.appendChild(newButton)
         // hide the numeric keypad
@@ -215,7 +233,7 @@
 }
 
 let clickCount = 0;
-const lines = ["Hãy Ấn Vào Enroll Tab", "Nhập PassWord Hợp Lệ", "Ấn Vào ENROLL USER 1(2)" , "Lưu Ý Chỉ Enroll 1 Mặt" ,"Nhập Tên Tương Ứng","Ấn Save Về Main Tab","Khung Xanh Lá => Bước 9","Khung Đỏ => Bước 1","Chờ 1 Lúc Khi Đèn Nháy","Đặt Ngón Tay Lên Máy Quét","Servo OFF => Buoc 9","Servo ON => Ring Doorbell"]; // define all the lines here
+const lines = ["Hãy Ấn Vào Enroll Tab", "Nhập PassWord Hợp Lệ", "Ấn Vào ENROLL USER 1(2)" , "Lưu Ý Chỉ Enroll 1 Mặt" ,"Nhập Tên Tương Ứng","Ấn Save Về Main Tab","Khung Xanh Lá => Bước 9","Khung Đỏ => Bước 1","Chờ 1 Lúc Khi Đèn Nháy","Đặt Ngón Tay Lên Máy Quét","Servo OFF => Bước 9","Servo ON => Ring Doorbell"]; // define all the lines here
 const performAction = () => {
   clickCount++;
 

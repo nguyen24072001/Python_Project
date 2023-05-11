@@ -35,9 +35,9 @@
     display: none;
   }
 
-  body {
-    background-color: #f2f2f2; /* Set a light background color for the page */
-  }
+   body {
+  background: linear-gradient(to bottom, #AFF1DA, #F9EA8F);
+}
 
   #h1 {
     margin-top: 0px;
@@ -83,7 +83,7 @@
   font-weight: bold;
   padding: 10px 20px;
   color: #fff;
-  background-image: linear-gradient(to bottom, #4CAF50, #2E7D32);
+  background-image: linear-gradient(to bottom, #333333, #999999);
   border: none;
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
@@ -92,7 +92,7 @@
 }
 
 .numeric-keypad-button:hover {
-  background-image: linear-gradient(to bottom, #3e8e41, #1B5E20);
+  background-image: linear-gradient(to bottom, #222222, #666666);
 }
 
 #numeric-keypad-backspace-button {
@@ -139,12 +139,12 @@
   <body>
 
     <form>
-  <h1 id="h1">enter password here
+  <h1 id="h1">Vui Lòng Nhập Mật Khẩu !
     <input type="password" id="input">
   </h1>
 </form>
 <div id="button">
-  <button onclick="submit()">submit</button>
+  <button onclick="submit()">ENTER</button>
 </div>
 
 <div id="pass"></div>
@@ -155,7 +155,7 @@
 
 <div id="action-button" class="hide">
    <div id="action-button-row" style="display: flex;">
-    <button id="action-button-1" onclick="performAction()">Perform Action</button>
+    <button id="action-button-1" onclick="performAction()">Display Scan Frame</button>
     <button id="action-button-2" onclick="MainTab()">Main Tab</button>
   </div>
   <form method="POST" action="/" style="background: linear-gradient(to bottom right, #ffffff, #e6e6e6); padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);">
@@ -224,7 +224,7 @@
     const newButton = document.createElement('button')
     newButton.textContent = 'ENROLL USER 1'
     newButton.onclick = () => {
-    if (confirm("Are you sure you want to enroll USER 1?\nCancel and Perform Action for better recognition\nOK to Enroll !")) {
+    if (confirm("Bạn có chắc chắn muốn đăng ký USER 1 không?\nCancel và Display Scan Frame để nhận dạng tốt hơn\nOK để Đăng Ký !")) {
       const video = document.querySelector('#video');
       const canvas = document.createElement('canvas');
       canvas.width = video.videoWidth;
@@ -243,7 +243,7 @@
     const newButton2 = document.createElement('button')
     newButton2.textContent = 'ENROLL USER 2'
     newButton2.onclick = () => {
-    if (confirm("Are you sure you want to enroll USER 2?\nCancel and Perform Action for better recognition\nOK to Enroll !")) {
+    if (confirm("Bạn có chắc chắn muốn đăng ký USER 2 không?\nCancel và Display Scan Frame để nhận dạng tốt hơn\nOK để Đăng Ký !")) {
       const video = document.querySelector('#video');
       const canvas = document.createElement('canvas');
       canvas.width = video.videoWidth;
@@ -277,7 +277,7 @@
 
       const performAction = () => {
         // code to perform action goes here
-        alert('Action performed!')
+        alert('Hãy Đặt Khuôn Mặt Vào Khung !')
         // Show the red square
   const redSquare = document.querySelector("#red-square");
   redSquare.style.display = "block";
@@ -294,7 +294,7 @@
           }
           enrollCounter++;
           const message = document.querySelector('#message');
-          message.textContent = `Enroll success ${enrollCounter} for ${user} !`;
+          message.textContent = `Đăng Ký Thành Công Lần Thứ ${enrollCounter} cho ${user} !`;
         })
         .catch((error) => {
           console.error(error);
