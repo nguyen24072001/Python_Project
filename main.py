@@ -11,8 +11,10 @@ from flask import Response, Flask, render_template, request, jsonify
 from paho.mqtt import publish
 
 # Đặt đường dẫn đến thư mục chứa hình ảnh để đào tạo trên
-TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/Desktop/train/images"
-SECOND_PERSON_TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/Desktop/train/images1"
+TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/PycharmProjects/pythonProject/static/train/images"
+SECOND_PERSON_TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/PycharmProjects/pythonProject/static/train/images1"
+# TRAINING_IMAGES_FOLDER = "/app/static/train/images"
+# SECOND_PERSON_TRAINING_IMAGES_FOLDER = "/app/static/train/images1"
 
 # Đặt địa chỉ và cổng của MQTT broker
 # MQTT_SERVER = "192.168.9.218"
@@ -227,7 +229,6 @@ def video_feed():
             # Mang lại khung dưới dạng phản hồi cho client
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-            # Tính toán và ghi lại tỷ lệ phần trăm nhận dạng khuôn mặt cứ sau 30 khung hình
 
     # Trả lại phản hồi với loại MIME của multipart/x-mixed-replace
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
@@ -251,7 +252,7 @@ def update_names():
 
 
 if __name__ == '__main__':  # Bắt đầu ứng dụng Flask
-    app.run(debug=False)
+    app.run(host='0.0.0.0', port=5000, debug=False)
     # Trong Flask, khi chạy ứng dụng, Flask sẽ tìm module chính (tức là file .py chứa đoạn mã này) và chạy nó.
     # Tuy nhiên, khi sử dụng Flask như một module trong một ứng dụng lớn hơn, ví dụ như khi triển khai ứng dụng
     # trên một server, việc sử dụng if __name__ == '__main__': là không cần thiết.

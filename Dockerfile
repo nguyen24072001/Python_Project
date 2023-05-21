@@ -41,14 +41,17 @@ RUN pip install --no-cache-dir \
     websocket-client==1.5.1 \
     Werkzeug==2.2.3
 
+# Copy the source code to the container
+COPY . /app
+
 # Set the working directory
 WORKDIR /app
 
-# Copy the application code
-COPY . .
-
 # Expose the default Flask port
-EXPOSE 5000
+EXPOSE 5001
 
-# Start the Flask application
-CMD [ "flask", "run", "--host=0.0.0.0" ]
+# Allow access to the camera device
+RUN if ! getent group video > /dev/null; then addgroup --system video; fi && adduser --system --ingroup video python
+
+# Start the Flask application with if __name__ == '__main__'
+CMD [ "python", "main.py" ]
