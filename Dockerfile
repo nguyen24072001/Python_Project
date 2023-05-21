@@ -50,8 +50,5 @@ WORKDIR /app
 # Expose the default Flask port
 EXPOSE 5001
 
-# Allow access to the camera device
-RUN if ! getent group video > /dev/null; then addgroup --system video; fi && adduser --system --ingroup video python
-
 # Start the Flask application with if __name__ == '__main__'
 CMD [ "python", "main.py" ]

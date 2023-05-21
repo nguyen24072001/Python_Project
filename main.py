@@ -11,10 +11,10 @@ from flask import Response, Flask, render_template, request, jsonify
 from paho.mqtt import publish
 
 # Đặt đường dẫn đến thư mục chứa hình ảnh để đào tạo trên
-TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/PycharmProjects/pythonProject/static/train/images"
-SECOND_PERSON_TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/PycharmProjects/pythonProject/static/train/images1"
-# TRAINING_IMAGES_FOLDER = "/app/static/train/images"
-# SECOND_PERSON_TRAINING_IMAGES_FOLDER = "/app/static/train/images1"
+# TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/PycharmProjects/pythonProject/static/train/images"
+# SECOND_PERSON_TRAINING_IMAGES_FOLDER = "/home/lqptoptvt/PycharmProjects/pythonProject/static/train/images1"
+TRAINING_IMAGES_FOLDER = "/app/static/train/images"
+SECOND_PERSON_TRAINING_IMAGES_FOLDER = "/app/static/train/images1"
 
 # Đặt địa chỉ và cổng của MQTT broker
 # MQTT_SERVER = "192.168.9.218"
@@ -29,7 +29,7 @@ MQTT_TOPIC2 = "my_topic2"
 known_encodings = []
 KNOWN_NAMES = ["User 1", "User 2"]
 
-
+# sudo docker run --device=/dev/video0 -p 5002:5001 test
 def update_known_encodings():
     global known_encodings
     while True:
@@ -141,8 +141,6 @@ def upload_image2():
 def video_feed():
     # Mở máy ảnh mặc định
     cap = cv2.VideoCapture(0)
-  #  cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-  #  cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
     def generate_frames():
         last_publish_time = time.time()
@@ -252,7 +250,7 @@ def update_names():
 
 
 if __name__ == '__main__':  # Bắt đầu ứng dụng Flask
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=5001, debug=False)
     # Trong Flask, khi chạy ứng dụng, Flask sẽ tìm module chính (tức là file .py chứa đoạn mã này) và chạy nó.
     # Tuy nhiên, khi sử dụng Flask như một module trong một ứng dụng lớn hơn, ví dụ như khi triển khai ứng dụng
     # trên một server, việc sử dụng if __name__ == '__main__': là không cần thiết.
