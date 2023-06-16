@@ -4,8 +4,9 @@ import RPi.GPIO as GPIO
 from pyfingerprint.pyfingerprint import PyFingerprint
 from pyfingerprint.pyfingerprint import FINGERPRINT_CHARBUFFER1
 import paho.mqtt.client as mqtt
+
 # mosquitto_sub -d -t my_topic
-# mosquitto_pub -d -t my_topic -m "Phung Cong Nguyen"
+# mosquitto_pub -d -t my_topic -m "Not Unknown User"
 # Initialize the fingerprint sensor
 try:
     f = PyFingerprint('/dev/ttyS0', 57600, 0xFFFFFFFF, 0x00000000)
