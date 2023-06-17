@@ -174,13 +174,16 @@ def video_feed():
 
                         # Tính độ tin cậy nhận dạng
                         confidence = face_recognition.face_distance([known_encodings[i]], fc_encoding)[0]
+                        # Tính khoảng cách giữa mã hóa khuôn mặt được nhận dạng và mã hóa khuôn mặt đã biết, sau đó đưa ra dưới dạng phần trăm
                         percent_confidence = (1 - confidence) * 100
-
+               
                         # Vẽ tên và độ tin cậy trên hộp màu xanh lá cây
                         cv2.rectangle(frame, (left, bottom + 10), (right, bottom + 30), (0, 255, 0), cv2.FILLED)
                         cv2.putText(frame, f"{name} ({percent_confidence:.2f}% confident)", (left + 6, bottom + 25), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
 
                         # Tính tỷ lệ nhận dạng
+                        # Chia số lượng khuôn mặt được nhận dạng thành công (recognized_count) cho tổng số khuôn mặt được phát hiện (frame_count) 
+                        # Và nhân với 100 để đưa ra dưới dạng phần trăm.
                         percent_recognized = recognized_count / frame_count * 100
 
                         # Vẽ tỷ lệ nhận dạng trên hộp màu xanh lá cây
@@ -232,14 +235,11 @@ def update_names():
 
     KNOWN_NAMES[0] = name1
     KNOWN_NAMES[1] = name2
-
     return render_template('index.html', names=KNOWN_NAMES)
 
 if __name__ == '__main__':  # Bắt đầu ứng dụng Flask
     app.run(host='0.0.0.0', port=8000, debug=False)
-    # Trong Flask, khi chạy ứng dụng, Flask sẽ tìm module chính (tức là file .py chứa đoạn mã này) và chạy nó.
-    # Tuy nhiên, khi sử dụng Flask như một module trong một ứng dụng lớn hơn, ví dụ như khi triển khai ứng dụng
-    # trên một server, việc sử dụng if __name__ == '__main__': là không cần thiết.
-    # Nếu debug được set bằng True, Flask sẽ hiển thị các thông báo lỗi chi tiết trên trình duyệt web.
-    # Khi triển khai ứng dụng thực tế, nên đặt debug là False để người dùng không thể xem được
-    # thông tin lỗi chi tiết của ứng dụng.
+# Trong Flask, khi chạy ứng dụng, Flask sẽ tìm module chính (tức là file .py chứa đoạn mã này) và chạy nó.
+# Tuy nhiên, khi sử dụng Flask như một module trong một ứng dụng lớn hơn (triển khai ứng dụng trên một server) => if __name__ == '__main__': là không cần thiết.
+# Nếu debug được set bằng True, Flask sẽ hiển thị các thông báo lỗi chi tiết trên trình duyệt web.
+# Khi triển khai ứng dụng thực tế, nên đặt debug là False để người dùng không thể xem được thông tin lỗi chi tiết của ứng dụng.
