@@ -5,21 +5,20 @@ from pyfingerprint.pyfingerprint import PyFingerprint
 from pyfingerprint.pyfingerprint import FINGERPRINT_CHARBUFFER1
 import paho.mqtt.client as mqtt
 
-# mosquitto_sub -d -t my_topic
-# mosquitto_pub -d -t my_topic -m "Not Unknown User"
-# Initialize the fingerprint sensor
+# Khởi tạo cảm biến vân tay
 try:
+    # Kết nối với cảm biến vân tay thông qua cổng serial '/dev/ttyS0' với baudrate 57600.
     f = PyFingerprint('/dev/ttyS0', 57600, 0xFFFFFFFF, 0x00000000)
-
     if (f.verifyPassword() == False):
-        raise ValueError('The given fingerprint sensor password is wrong!')
+        raise ValueError('Mật khẩu cảm biến vân tay đã cung cấp là sai!')
 
+# Xử lý ngoại lệ
 except Exception as e:
-    print('The fingerprint sensor could not be initialized!')
-    print('Exception message: ' + str(e))
+    print('Không thể khởi tạo cảm biến vân tay!')
+    print('Thông báo ngoại lệ: ' + str(e))
     exit(1)
 
-# Initialize the LED and servo
+# Khởi tạo đèn Led và Servo
 Pin = 21
 servoPIN = 13
 GPIO.setmode(GPIO.BCM)
@@ -31,81 +30,81 @@ p.start(2.5)
 
 # MQTT connection callback
 def on_connect(client, userdata, flags, rc):
-    print('Connected with result code ' + str(rc))
+    print('Đã kết nối với mã kết quả : ' + str(rc))
     client.subscribe('my_topic')
     return 2
 
 # MQTT message callback
 def on_message(client, userdata, msg):
     while msg.topic == 'my_topic' and msg.payload == b'Unknown User':
-        print('Waiting for valid user...')
+        print('Đang chờ người dùng hợp lệ...')
         return 2
-        
+
+    # Xác định được người dùng hợp lệ thì nháy Led để báo hiệu và kích hoạt Module AS608
     if msg.topic == 'my_topic':    
-        print('Received message: ' + str(msg.payload))
-        GPIO.output(Pin, GPIO.HIGH)
-        time.sleep(1)
-        GPIO.output(Pin, GPIO.LOW)
-        time.sleep(1)
+        print('Xin chào người dùng : ' + str(msg.payload))
+        GPIO.output(Pin, GPIO.HIGH) # Led ON !
+        time.sleep(1)               # Delay 1 giây
+        GPIO.output(Pin, GPIO.LOW)  # Led OFF !
+        time.sleep(1)         
+        
     while True:  
         try:
-            # Wait for finger to be read
-            print('Waiting for finger...')
+            # Quá trình quét mẫu vân tay
+            print('Đang đợi mẫu vân tay...')
             
             while (f.readImage() == False):
                 pass
          
-            # Convert read image to characteristics and store it in charbuffer 1
+            # Chuyển đổi hình ảnh đã đọc thành các đặc trưng và lưu trữ nó trong 'charbuffer 1'
             f.convertImage(FINGERPRINT_CHARBUFFER1)
 
-            # Search for template
+            # Tìm kiếm mẫu
             result = f.searchTemplate()
             positionNumber = result[0]
             accuracyScore = result[1]
              
-            # Check if match was found
+            # Kiểm tra mẫu vân tay
             if (positionNumber == -1):
                 print('No match found!')
                 return 1
 
-            # Toggle servo
-            print('Found template at position #' + str(positionNumber))
-            print('The accuracy score is: ' + str(accuracyScore))
-            
-            if (positionNumber == 1):
-                print('Xin Chao Phung Cong Nguyen voi id la : ' + str(positionNumber))
-            elif (positionNumber == 2):
-                print('Xin Chao user2 voi id la : ' + str(positionNumber))
-            GPIO.output(Pin, GPIO.HIGH)    
-            for duty_cycle in range(75, 25, -1):
-             p.ChangeDutyCycle(duty_cycle/10)
-             time.sleep(0.02)  # Wait for 20ms between each step
+            print('Đã tìm thấy mẫu ở vị trí #' + str(positionNumber))
+            print('Độ tin cậy của mẫu vân tay là :' + str(accuracyScore))
+
+            # Xử lý Servo
+            GPIO.output(Pin, GPIO.HIGH)          
+            for duty_cycle in range(75, 25, -1): # Vòng lặp for để thay đổi chu kỳ nhiệm vụ của xung PWM đưa vào Servo
+             p.ChangeDutyCycle(duty_cycle/10)    # Thiết lập chu kỳ nhiệm vụ
+             time.sleep(0.02)                    # Đợi 20ms giữa mỗi bước
             for duty_cycle in range(25, 76):
              p.ChangeDutyCycle(duty_cycle/10)
-             time.sleep(0.02)  # Wait for 20ms between each step
+             time.sleep(0.02)                
             GPIO.output(Pin, GPIO.LOW)
 
-             # Load and hash the template
+             # Tải Băm mẫu
             f.loadTemplate(positionNumber, FINGERPRINT_CHARBUFFER1)
             characterics = str(f.downloadCharacteristics(FINGERPRINT_CHARBUFFER1)).encode('utf-8')
-            print('SHA-2 hash of template: ' + hashlib.sha256(characterics).hexdigest())
+            print('Hàm băm SHA-2 của mẫu:' + hashlib.sha256(characterics).hexdigest())
             return 1
 
+        # Xử lý ngoại lệ
         except Exception as e:
-            print('Operation failed!')        
-            print('Exception message: ' + str(e))
+            print('Lỗi hệ thống!')        
+            print('Thông báo ngoại lệ: ' + str(e))
             break
-                  
-        except KeyboardInterrupt:
-            GPIO.cleanup()
-            p.stop()
-            break    
 
-# Create an MQTT client and connect to the broker
+        # Xử lý ngoại lệ khi người dùng ấn phím "Ctrl+C" để dừng chương trình đang chạy
+        except KeyboardInterrupt:
+            GPIO.cleanup() # Dọn dẹp các GPIO, giải phóng tài nguyên được sử dụng trong quá trình chạy chương trình
+            p.stop()       # Dừng quá trình PWM (pulse width modulation)
+            break          # Thoát khỏi vòng lặp while đang chạy
+
+# Khởi tạo MQTT client và kết nối đến broker
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
 client.connect('localhost', 1883, 60)
 
-# Start the MQTT client loop
+# Bắt đầu vòng lặp cho MQTT client
 client.loop_forever()       
