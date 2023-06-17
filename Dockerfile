@@ -1,6 +1,6 @@
 FROM python:3.10-slim-buster
 
-# Install system dependencies
+# Cài đặt lib phụ thuộc hệ thống
 RUN apt-get update && apt-get install -y \
     cmake \
     libopenblas-dev \
@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     pkg-config
 
-# Install Python dependencies
+# Cài đặt các lib phụ thuộc Python
 RUN pip install --no-cache-dir \
     click==8.1.3 \
     cmake==3.26.1 \
@@ -41,14 +41,14 @@ RUN pip install --no-cache-dir \
     websocket-client==1.5.1 \
     Werkzeug==2.2.3
 
-# Copy the source code to the container
+# Sao chép mã nguồn vào container
 COPY . /app
 
-# Set the working directory
+# Đặt thư mục làm việc
 WORKDIR /app
 
-# Expose the default Flask port
-EXPOSE 5001
+# Hiển thị cổng Flask mặc định
+EXPOSE 8000
 
 # Start the Flask application with if __name__ == '__main__'
 CMD [ "python", "main.py" ]

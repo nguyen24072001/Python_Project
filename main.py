@@ -17,8 +17,9 @@ TRAINING_IMAGES_FOLDER = "/app/static/train/images"
 SECOND_PERSON_TRAINING_IMAGES_FOLDER = "/app/static/train/images1"
 
 # Đặt địa chỉ và cổng của MQTT broker
-# MQTT_SERVER = "192.168.9.218"
-MQTT_SERVER = "localhost"
+MQTT_SERVER = "192.168.162.218"
+# Địa chỉ của máy chủ MQTT đang chạy trên cùng một thiết bị với ứng dụng đang thực thi
+# MQTT_SERVER = "localhost"
 MQTT_PORT = 1883
 message_id = 0
 # MQTT topic => publish
@@ -185,7 +186,7 @@ def video_feed():
                         confidence = face_recognition.face_distance([known_encodings[i]], fc_encoding)[0]
                         percent_confidence = (1 - confidence) * 100
 
-                        # Vẽ tên và sự tự tin trên hộp màu xanh lá cây
+                        # Vẽ tên và độ tin cậy trên hộp màu xanh lá cây
                         cv2.rectangle(frame, (left, bottom + 10), (right, bottom + 30), (0, 255, 0), cv2.FILLED)
                         cv2.putText(frame, f"{name} ({percent_confidence:.2f}% confident)", (left + 6, bottom + 25),
                                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
@@ -250,7 +251,7 @@ def update_names():
 
 
 if __name__ == '__main__':  # Bắt đầu ứng dụng Flask
-    app.run(host='0.0.0.0', port=5001, debug=False)
+    app.run(host='0.0.0.0', port=8000, debug=False)
     # Trong Flask, khi chạy ứng dụng, Flask sẽ tìm module chính (tức là file .py chứa đoạn mã này) và chạy nó.
     # Tuy nhiên, khi sử dụng Flask như một module trong một ứng dụng lớn hơn, ví dụ như khi triển khai ứng dụng
     # trên một server, việc sử dụng if __name__ == '__main__': là không cần thiết.
