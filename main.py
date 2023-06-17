@@ -30,7 +30,6 @@ MQTT_TOPIC2 = "my_topic2"
 known_encodings = []
 KNOWN_NAMES = ["User 1", "User 2"]
 
-# sudo docker run --device=/dev/video0 -p 5002:5001 test
 def update_known_encodings():
     global known_encodings
     while True:
@@ -60,7 +59,6 @@ def update_known_encodings():
         # Sleep 10 giây trước khi kiểm tra lại
         time.sleep(10)
 
-
 # Bắt đầu chuỗi để cập nhật liên tục các bảng mã đã biết
 update_thread = threading.Thread(target=update_known_encodings)
 
@@ -71,14 +69,12 @@ app = Flask(__name__, static_folder='static', static_url_path='/static')
 # Tạo máy dò khuôn mặt bằng dlib
 detector = dlib.get_frontal_face_detector()
 
-
 # Function publish name ==> MQTT topic nếu có kết quả khớp với mã hóa khuôn mặt đã biết
 def publish_name(name):
     global message_id
     message_id += 1
 
     while True:
-
         try:
             publish.single(MQTT_TOPIC, payload=name, hostname=MQTT_SERVER, port=MQTT_PORT, qos=1)
         except ConnectionError as ce:
@@ -92,14 +88,11 @@ def publish_name(name):
             time.sleep(10)
             continue
         else:
-
             print(f"User OK !: {name}")
             # Lưu tên và thời gian vào tập tin
             with open("log.txt", "a") as f:
-
                 f.write(f" ID: {message_id} | {name} ĐÃ ĐƯỢC NHẬN DIỆN VÀO LÚC | {datetime.now()}\n")
             break
-
 
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
@@ -118,7 +111,6 @@ def upload_image():
         print(f'Error uploading image: {e}')
         return jsonify({'success': False, 'error': 'Failed to upload image'}), 500
 
-
 @app.route('/upload_image2', methods=['POST'])
 def upload_image2():
     try:
@@ -136,7 +128,6 @@ def upload_image2():
         print(f'Error uploading image: {e}')
         return jsonify({'success': False, 'error': 'Failed to upload image'}), 500
 
-
 # Xác định luồng cho nguồn cấp dữ liệu video_feed
 @app.route('/video_feed')
 def video_feed():
@@ -149,7 +140,6 @@ def video_feed():
         recognized_count = 0
 
         while True:
-
             # Chụp từng khung hình
             ret, frame = cap.read()
             frame_count += 1
@@ -188,16 +178,14 @@ def video_feed():
 
                         # Vẽ tên và độ tin cậy trên hộp màu xanh lá cây
                         cv2.rectangle(frame, (left, bottom + 10), (right, bottom + 30), (0, 255, 0), cv2.FILLED)
-                        cv2.putText(frame, f"{name} ({percent_confidence:.2f}% confident)", (left + 6, bottom + 25),
-                                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+                        cv2.putText(frame, f"{name} ({percent_confidence:.2f}% confident)", (left + 6, bottom + 25), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
 
                         # Tính tỷ lệ nhận dạng
                         percent_recognized = recognized_count / frame_count * 100
 
                         # Vẽ tỷ lệ nhận dạng trên hộp màu xanh lá cây
                         cv2.rectangle(frame, (left, bottom + 40), (right, bottom + 60), (0, 255, 0), cv2.FILLED)
-                        cv2.putText(frame, f"Recognition rate: {percent_recognized:.2f}%", (left + 6, bottom + 55),
-                                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+                        cv2.putText(frame, f"Recognition rate: {percent_recognized:.2f}%", (left + 6, bottom + 55), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
 
                         # Publish name => MQTT topic nếu thời gian trôi qua lớn hơn hoặc bằng 15 giây
                         if elapsed_time >= 15:
@@ -232,12 +220,10 @@ def video_feed():
     # Trả lại phản hồi với loại MIME của multipart/x-mixed-replace
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-
 # Xác định luồng cho trang chủ
 @app.route('/')
 def index():
     return render_template('index.html', names=KNOWN_NAMES)
-
 
 @app.route('/', methods=['POST'])
 def update_names():
@@ -248,7 +234,6 @@ def update_names():
     KNOWN_NAMES[1] = name2
 
     return render_template('index.html', names=KNOWN_NAMES)
-
 
 if __name__ == '__main__':  # Bắt đầu ứng dụng Flask
     app.run(host='0.0.0.0', port=8000, debug=False)
