@@ -50,5 +50,5 @@ WORKDIR /app
 # Hiển thị cổng Flask mặc định
 EXPOSE 8000
 
-# Start the Flask application with if __name__ == '__main__'
+# Bắt đầu ứng dụng Flask với if __name__ == '__main__'
 CMD [ "python", "main.py" ]
