@@ -14,6 +14,6 @@ Docker:
 +) $ sudo docker --version
 +) $ sudo docker image ls
 +) $ sudo docker image build -t pcn-ptit-project .
-+) & sudo docker rmi your-image-name  --force
++) $ sudo docker rmi your-image-name  --force
 +) $ sudo docker run --device=/dev/video0 -p 8000:8000 pcn-ptit-project
 => Enter password : '1'
